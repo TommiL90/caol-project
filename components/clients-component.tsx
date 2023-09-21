@@ -1,10 +1,10 @@
 import React, { Fragment } from 'react'
 import { SelectUser } from './select-users'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import TabletClients from './clients-table'
 import { LineOverview } from './graphics/line-overview'
 import PieOverviewClients from './pie-overview-clients'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
 
 const ClientsComponent = () => {
   return (
