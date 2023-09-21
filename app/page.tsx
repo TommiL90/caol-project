@@ -12,7 +12,7 @@ export default function Home() {
       setDatax(data)
     }
 
-    
+    getData()
   }, [])
 
   return (
