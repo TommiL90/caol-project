@@ -11,7 +11,7 @@ export default function Home() {
       const data = await test()
       setDatax(data)
     }
-
+    console.log('datax', datax)
     getData()
   }, [])
 
