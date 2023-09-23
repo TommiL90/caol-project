@@ -21,6 +21,7 @@ import {
   calculateUserSummaries,
 } from '@/functions/user-summaries'
 import useConsultants from '@/hooks/useConsultants'
+import { DateRange } from '@/hooks/useDateRange'
 import { addDays } from 'date-fns'
 import {
   Dispatch,
@@ -29,7 +30,6 @@ import {
   useEffect,
   useState,
 } from 'react'
-import { DateRange } from 'react-day-picker'
 
 interface IFinancialContext {
   reportTable: InvoicesByUserAndMonth

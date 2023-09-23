@@ -21,10 +21,6 @@ export const retrieveInvoices = async (
   startDate: Date,
   endDate: Date,
 ) => {
-  startDate.setDate(1)
-
-  endDate.setMonth(endDate.getMonth() + 1, 0)
-
   const invoices = await prisma.cao_fatura.findMany({
     where: {
       co_os: { in: osByUsers.map((e) => e.co_os) },

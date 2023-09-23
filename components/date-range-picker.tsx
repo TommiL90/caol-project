@@ -1,7 +1,6 @@
 'use client'
 
 import * as React from 'react'
-import { CalendarIcon } from '@radix-ui/react-icons'
 import { format } from 'date-fns'
 
 import { cn } from '@/lib/utils'
@@ -12,8 +11,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import { DateRange } from 'react-day-picker'
 import { HTMLAttributes } from 'react'
+import ptBR from 'date-fns/locale/pt-BR'
+import { DateRange } from '@/hooks/useDateRange'
 
 interface CalendarDateRangePickerProps extends HTMLAttributes<HTMLDivElement> {
   date: DateRange | undefined
@@ -36,29 +36,24 @@ export function CalendarDateRangePicker({
               !date && 'text-muted-foreground',
             )}
           >
-            <CalendarIcon className="mr-2 h-4 w-4" />
-            {date?.from ? (
-              date.to ? (
-                <>
-                  {format(date.from, 'LLL dd, y')} -{' '}
-                  {format(date.to, 'LLL dd, y')}
-                </>
-              ) : (
-                format(date.from, 'LLL dd, y')
-              )
-            ) : (
-              <span>Pick a date</span>
-            )}
+        
+        {date?.from ? (
+  date.to ? (
+    <>
+      {format(date.from, 'LLL y', { locale: ptBR })} - {format(date.to, 'LLL y', { locale: ptBR })}
+    </>
+  ) : (
+    format(date.from, 'LLL y', { locale: ptBR })
+  )
+) : (
+  <span>Selecionar um Periodo</span>
+)}
+
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="end">
           <Calendar
-            initialFocus
-            mode="range"
-            defaultMonth={new Date('2007-01-25T00:00:00.000Z')}
-            selected={date}
-            onSelect={setDate}
-            numberOfMonths={4}
+setDate={setDate}
           />
         </PopoverContent>
       </Popover>

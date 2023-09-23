@@ -14,9 +14,9 @@ import { transformDataClientForRecharts } from '@/functions/transform-data-clien
 import { transformDataClientForPizzaRecharts } from '@/functions/transform-data-for-pizza-recharts'
 import { UserSummaries } from '@/functions/user-summaries'
 import useClients from '@/hooks/useClients'
+import { DateRange } from '@/hooks/useDateRange'
 import { addDays } from 'date-fns'
 import { Dispatch, SetStateAction, createContext, useState } from 'react'
-import { DateRange } from 'react-day-picker'
 
 interface IClientsContext {
   date: DateRange | undefined
@@ -52,7 +52,7 @@ export const ClientsProvider = ({ children }: IChildrenProps) => {
 
   const [date, setDate] = useState<DateRange | undefined>({
     from: new Date(2007, 0, 1),
-    to: addDays(new Date(2007, 1, 20), 30),
+    to: undefined,
   })
   const {
     availableUsers,
