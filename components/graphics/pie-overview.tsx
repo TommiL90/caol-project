@@ -55,10 +55,6 @@ interface PieOverviewProps {
 }
 
 export function PieOverview({ reportPizza }: PieOverviewProps) {
-  if (!reportPizza) {
-    return <p>Seleccione um período e usuarios</p>
-  }
-
   return (
     <ResponsiveContainer width="100%" height={350}>
       <PieChart width={500} height={500}>

@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use server'
+import { calculateAverageFixedCost } from './average-fixed-cost-from-consultants'
 import { getMonthName } from './get-month-name'
 import { InvoicesByUserAndMonth } from './order-os-by-user-and-month'
 
@@ -13,7 +15,7 @@ export const transformMonthObjectToArray = async (
   invoicesByUserAndMonth: InvoicesByUserAndMonth,
 ): Promise<MonthObjectArray[]> => {
   const newArr: MonthObjectArray[] = []
-  const avgFixedCost = 5000
+  const avgFixedCost = await calculateAverageFixedCost()
 
   const months = Array.from(
     new Set(
@@ -24,20 +26,21 @@ export const transformMonthObjectToArray = async (
   )
 
   months.forEach((month) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const newObj: any = {
       month: getMonthName(month),
-      averageFixedCost: avgFixedCost,
+      averageFixedCost: avgFixedCost.toFixed(2),
     }
 
     Object.entries(invoicesByUserAndMonth).forEach(([user, userData]) => {
       if (userData[month] && userData[month].invoices) {
-        newObj[user] = userData[month].invoices.reduce(
+        const sum = userData[month].invoices.reduce(
           (acc, invoice) => acc + invoice.receita_liquida,
           0,
         )
+
+        newObj[user] = sum.toFixed(2)
       } else {
-        newObj[user] = 0
+        newObj[user] = '0.00'
       }
     })
 

@@ -41,7 +41,7 @@ const UserInvoicesTable = ({ user, userInvoices }: UserInvoicesTableProps) => {
                 R$ {userData.totalNetValue.toFixed(2)}
               </TableCell>
               {/* Custo Fixo de usuario */}
-              <TableCell>R$ {fixedCost?.brut_salario}</TableCell>
+              <TableCell>R$ {fixedCost?.brut_salario.toFixed(2)}</TableCell>
               {/* Comisao de usuario */}
               <TableCell>R$ {(-userData.totalCommission).toFixed(2)}</TableCell>
               <TableCell className={profit > 0 ? '' : 'text-destructive'}>

@@ -33,15 +33,14 @@ export const orderInvoicesByUserAndMonth = async (
             }
 
             const value = invoice.valor
-            const totalImpInc = (invoice.total_imp_inc / 100) * value // Convierte el porcentaje a decimal
-            const netValue = parseFloat((value - totalImpInc).toFixed(2))
+            const totalImpInc = (invoice.total_imp_inc / 100) * value
 
-            const porcentualCommission = invoice.comissao_cn / 100 // El porcentaje ya está en decimal
-            const commission = parseFloat(
-              (porcentualCommission * netValue).toFixed(2),
-            )
+            const netValue = value - totalImpInc
 
-            // Agrega tanto "receita_liquida" como "comissao" a la factura y luego la agrega al acumulador
+            const porcentualCommission = invoice.comissao_cn / 100
+
+            const commission = porcentualCommission * netValue
+
             const formattedInvoice = {
               ...invoice,
               receita_liquida: netValue,

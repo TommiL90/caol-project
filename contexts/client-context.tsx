@@ -1,7 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
-import { calculateSumOfValuesByClientAndMonth } from '@/functions/calculate-sum-of-values-by-client-and-month'
-import { createArrUsers } from '@/functions/create-array-users'
 import { findAllClients } from '@/functions/find-all-clients'
 import {
   ClientWithNetRevenue,
@@ -10,13 +9,17 @@ import {
 } from '@/functions/reorder-invoices-by-month-clients'
 import { Client } from '@/functions/retrieve-clients'
 import { retrieveInvoicesFromClients } from '@/functions/retrieve-invoices-froms-clients'
-import { transformDataClientForRecharts } from '@/functions/transform-data-client-for-recharts'
-import { transformDataClientForPizzaRecharts } from '@/functions/transform-data-for-pizza-recharts'
+import { transformInvoicesToMonthlyFormat } from '@/functions/transform-invoices-to-monthly-format'
+import { transformToClientSummaries } from '@/functions/transform-to-client-summaries'
 import { UserSummaries } from '@/functions/user-summaries'
 import useClients from '@/hooks/useClients'
 import { DateRange } from '@/hooks/useDateRange'
 import { addDays } from 'date-fns'
 import { Dispatch, SetStateAction, createContext, useState } from 'react'
+
+interface IChildrenProps {
+  children: React.ReactNode
+}
 
 interface IClientsContext {
   date: DateRange | undefined
@@ -31,11 +34,6 @@ interface IClientsContext {
   arrOrderesForMonthAndUser: MonthWithClients[]
   reportGraphic: Record<string, any>[]
   reportPizza: UserSummaries[]
-  userArr: string[]
-}
-
-interface IChildrenProps {
-  children: React.ReactNode
 }
 
 export const ClientsContext = createContext({} as IClientsContext)
@@ -48,11 +46,10 @@ export const ClientsProvider = ({ children }: IChildrenProps) => {
   >([])
   const [reportGraphic, setReportGraphic] = useState<Record<string, any>[]>([])
   const [reportPizza, setReportPizza] = useState<UserSummaries[]>([])
-  const [userArr, setUserArr] = useState<string[]>([])
 
   const [date, setDate] = useState<DateRange | undefined>({
     from: new Date(2007, 0, 1),
-    to: undefined,
+    to: addDays(new Date(2007, 1, 20), 30),
   })
   const {
     availableUsers,
@@ -76,25 +73,20 @@ export const ClientsProvider = ({ children }: IChildrenProps) => {
       setArrOrderedforMonthAndUser(orderInvoicesfromMonthsAndClients)
 
       const allClients = await findAllClients(orderInvoicesfromMonthsAndClients)
+
       setAllClientsForTable(allClients)
 
-      const somaOfValuesByClientsAndMonths =
-        await calculateSumOfValuesByClientAndMonth(invoices)
-
       // grafico
-      const transformedDataForRecharts = await transformDataClientForRecharts(
-        somaOfValuesByClientsAndMonths,
-      )
-      console.log(transformedDataForRecharts)
-      setReportGraphic(transformedDataForRecharts)
 
-      const clientsFromDataRecharts = await createArrUsers(
-        transformedDataForRecharts,
-      )
-      setUserArr(clientsFromDataRecharts)
+      const dataMonthlyFormatForRecharts =
+        await transformInvoicesToMonthlyFormat(
+          orderInvoicesfromMonthsAndClients,
+        )
 
-      const dataForPizzaRechart = await transformDataClientForPizzaRecharts(
-        transformedDataForRecharts,
+      setReportGraphic(dataMonthlyFormatForRecharts)
+
+      const dataForPizzaRechart = await transformToClientSummaries(
+        dataMonthlyFormatForRecharts,
       )
       setReportPizza(dataForPizzaRechart)
     } else {
@@ -117,7 +109,6 @@ export const ClientsProvider = ({ children }: IChildrenProps) => {
         arrOrderesForMonthAndUser,
         reportGraphic,
         reportPizza,
-        userArr,
       }}
     >
       {children}

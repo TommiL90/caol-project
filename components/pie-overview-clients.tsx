@@ -6,24 +6,18 @@ import { ClientsContext } from '@/contexts/client-context'
 const PieOverviewClients = () => {
   const { reportPizza, movedUsers } = useContext(ClientsContext)
 
-  const newArr = reportPizza
-    .map((pair) => {
-      if (pair.value === 0) {
-        return null
-      }
+  const newArr = reportPizza.map((pair) => {
+    const matchingClient = movedUsers.find(
+      (client) => client.co_cliente.toString() === pair.name,
+    )
+    if (matchingClient && matchingClient.no_fantasia) {
+      return { name: matchingClient.no_fantasia, value: pair.value }
+    } else {
+      return pair
+    }
+  })
 
-      const matchingClient = movedUsers.find(
-        (client) => client.co_cliente.toString() === pair.name,
-      )
-      if (matchingClient && matchingClient.no_fantasia) {
-        return { name: matchingClient.no_fantasia, value: pair.value }
-      } else {
-        return pair
-      }
-    })
-    .filter((pair) => pair !== null)
-
-  return <>{<PieOverview reportPizza={newArr} />}</>
+  return <>{newArr.length > 0 && <PieOverview reportPizza={newArr} />}</>
 }
 
 export default PieOverviewClients

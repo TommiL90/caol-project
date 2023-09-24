@@ -36,25 +36,22 @@ export function CalendarDateRangePicker({
               !date && 'text-muted-foreground',
             )}
           >
-        
-        {date?.from ? (
-  date.to ? (
-    <>
-      {format(date.from, 'LLL y', { locale: ptBR })} - {format(date.to, 'LLL y', { locale: ptBR })}
-    </>
-  ) : (
-    format(date.from, 'LLL y', { locale: ptBR })
-  )
-) : (
-  <span>Selecionar um Periodo</span>
-)}
-
+            {date?.from ? (
+              date.to ? (
+                <>
+                  {format(date.from, 'LLL y', { locale: ptBR })} -{' '}
+                  {format(date.to, 'LLL y', { locale: ptBR })}
+                </>
+              ) : (
+                format(date.from, 'LLL y', { locale: ptBR })
+              )
+            ) : (
+              <span>Selecionar um Periodo</span>
+            )}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="end">
-          <Calendar
-setDate={setDate}
-          />
+          <Calendar setDate={setDate} />
         </PopoverContent>
       </Popover>
     </div>
