@@ -1,17 +1,29 @@
 import { UserInvoices } from '@/types/userInvoices'
+import Decimal from 'decimal.js-light'
 
 export const calculateNetValueAndCommissionOfMOnth = (
   userInvoices: UserInvoices,
-) =>
-  Object.entries(userInvoices).reduce(
+) => {
+  const result = Object.entries(userInvoices).reduce(
     (accumulator, [, userData]) => {
-      const netValueMonths = userData.totalNetValue
-      const totalCommissionMonths = userData.totalCommission
+      const netValueMonths = new Decimal(userData.totalNetValue)
+      const totalCommissionMonths = new Decimal(userData.totalCommission)
 
-      accumulator.netValueMonths += netValueMonths
-      accumulator.totalCommissionMonths += totalCommissionMonths
+      accumulator.netValueMonths =
+        accumulator.netValueMonths.plus(netValueMonths)
+      accumulator.totalCommissionMonths =
+        accumulator.totalCommissionMonths.plus(totalCommissionMonths)
 
       return accumulator
     },
-    { netValueMonths: 0, totalCommissionMonths: 0 },
+    { netValueMonths: new Decimal(0), totalCommissionMonths: new Decimal(0) },
   )
+
+  const netValueMonthsNumber = result.netValueMonths.toNumber()
+  const totalCommissionMonthsNumber = result.totalCommissionMonths.toNumber()
+
+  return {
+    netValueMonths: netValueMonthsNumber,
+    totalCommissionMonths: totalCommissionMonthsNumber,
+  }
+}

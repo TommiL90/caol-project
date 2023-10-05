@@ -2,6 +2,7 @@
 import { UserData } from '@/types/userData'
 import { RetrieveInvoice } from './retrieve-invoices'
 import { OS } from './retrieve-os-by-user'
+import Decimal from 'decimal.js-light'
 
 export const orderInvoicesByUserAndMonth = async (
   osByUsers: OS[],
@@ -32,24 +33,25 @@ export const orderInvoicesByUserAndMonth = async (
               }
             }
 
-            const value = invoice.valor
-            const totalImpInc = (invoice.total_imp_inc / 100) * value
-
-            const netValue = value - totalImpInc
-
-            const porcentualCommission = invoice.comissao_cn / 100
-
-            const commission = porcentualCommission * netValue
+            const value = new Decimal(invoice.valor)
+            const totalImpInc = value.mul(
+              new Decimal(invoice.total_imp_inc).div(100),
+            )
+            const netValue = value.minus(totalImpInc)
+            const porcentualCommission = new Decimal(invoice.comissao_cn).div(
+              100,
+            )
+            const commission = porcentualCommission.mul(netValue)
 
             const formattedInvoice = {
               ...invoice,
-              receita_liquida: netValue,
-              comissao: commission,
+              receita_liquida: netValue.toNumber(),
+              comissao: commission.toNumber(),
             }
 
             accumulator[user][monthKey].invoices.push(formattedInvoice)
-            accumulator[user][monthKey].totalNetValue += netValue
-            accumulator[user][monthKey].totalCommission += commission
+            accumulator[user][monthKey].totalNetValue += netValue.toNumber()
+            accumulator[user][monthKey].totalCommission += commission.toNumber()
           }
         }
       }

@@ -1,11 +1,12 @@
 /* eslint-disable camelcase */
 'use server'
 
+import Decimal from 'decimal.js-light'
 import { RetrieveInvoice } from './retrieve-invoices'
 
 export interface ClientWithNetRevenue {
   co_cliente: number
-  receita_liquida_do_mes: number
+  receita_liquida_do_mes: number | Decimal
 }
 
 export interface MonthWithClients {
@@ -26,16 +27,24 @@ export const reorderInvoicesfromMonthsAndClients = async (
         (item) => item.mes === invoiceMonth && item.ano === invoiceYear,
       )
 
-      const receita_liquida =
-        invoice.valor - invoice.total_imp_inc * (invoice.valor / 100)
+      const valor = new Decimal(invoice.valor)
+      const totalImpInc = new Decimal(invoice.total_imp_inc)
+
+      const receita_liquida = valor.minus(
+        totalImpInc.times(valor.dividedBy(100)),
+      )
 
       if (existingMonth) {
         const clienteExistente = existingMonth.clientes.find(
           (cliente) => cliente.co_cliente === invoice.co_cliente,
         )
 
-        if (clienteExistente) {
-          clienteExistente.receita_liquida_do_mes += receita_liquida
+        if (
+          clienteExistente &&
+          typeof clienteExistente.receita_liquida_do_mes !== 'number'
+        ) {
+          clienteExistente.receita_liquida_do_mes =
+            clienteExistente.receita_liquida_do_mes.plus(receita_liquida)
         } else {
           existingMonth.clientes.push({
             co_cliente: invoice.co_cliente,
@@ -60,5 +69,15 @@ export const reorderInvoicesfromMonthsAndClients = async (
     [],
   )
 
-  return result
+  // Realizamos la conversión a Number justo antes de devolver los resultados
+  return result.map((month) => ({
+    ...month,
+    clientes: month.clientes.map((cliente) => ({
+      ...cliente,
+      receita_liquida_do_mes:
+        typeof cliente.receita_liquida_do_mes !== 'number'
+          ? cliente.receita_liquida_do_mes.toNumber()
+          : cliente.receita_liquida_do_mes,
+    })),
+  }))
 }

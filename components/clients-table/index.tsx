@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 'use client'
 
 import { ClientsContext } from '@/contexts/client-context'
@@ -12,22 +13,25 @@ import {
 } from '../ui/table'
 import { MonthWithClients } from '@/functions/reorder-invoices-by-month-clients'
 import { MONTHS } from '@/constants/months'
+import Decimal from 'decimal.js-light'
+import { formatNumberAsCurrency } from '@/lib/formatCurrencyValue'
 
 const TabletClients = () => {
   const { allClientForTable, arrOrderesForMonthAndUser, movedUsers } =
     useContext(ClientsContext)
 
   const getTotalByClient = (clientId: number, data: MonthWithClients[]) => {
-    let total = 0
+    let total = new Decimal(0)
     data.forEach((mesCliente) => {
       const clientData = mesCliente.clientes.find(
         (c) => c.co_cliente === clientId,
       )
       if (clientData) {
-        total += clientData.receita_liquida_do_mes
+        total = total.plus(new Decimal(clientData.receita_liquida_do_mes))
       }
     })
-    return total.toFixed(2)
+
+    return formatNumberAsCurrency(total.toNumber())
   }
 
   return (
@@ -55,10 +59,21 @@ const TabletClients = () => {
                 }`}</TableCell>
                 {allClientForTable.map((cliente) => (
                   <TableCell key={cliente.co_cliente}>
-                    R${' '}
-                    {mesCliente.clientes
-                      .find((c) => c.co_cliente === cliente.co_cliente)
-                      ?.receita_liquida_do_mes?.toFixed(2) ?? 0}
+                    {(() => {
+                      const clienteExistente = mesCliente.clientes.find(
+                        (c) => c.co_cliente === cliente.co_cliente,
+                      )
+                      if (
+                        clienteExistente &&
+                        clienteExistente.receita_liquida_do_mes !== undefined
+                      ) {
+                        return formatNumberAsCurrency(
+                          +clienteExistente.receita_liquida_do_mes,
+                        )
+                      } else {
+                        return formatNumberAsCurrency(0)
+                      }
+                    })()}
                   </TableCell>
                 ))}
               </TableRow>
@@ -67,7 +82,6 @@ const TabletClients = () => {
               <TableCell>TOTAL</TableCell>
               {allClientForTable.map((cliente) => (
                 <TableCell key={cliente.co_cliente}>
-                  R${' '}
                   {getTotalByClient(
                     cliente.co_cliente,
                     arrOrderesForMonthAndUser,

@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use server'
+import Decimal from 'decimal.js-light'
 import { calculateAverageFixedCost } from './average-fixed-cost-from-consultants'
 import { getMonthName } from './get-month-name'
 import { InvoicesByUserAndMonth } from './order-os-by-user-and-month'
@@ -34,11 +35,11 @@ export const transformMonthObjectToArray = async (
     Object.entries(invoicesByUserAndMonth).forEach(([user, userData]) => {
       if (userData[month] && userData[month].invoices) {
         const sum = userData[month].invoices.reduce(
-          (acc, invoice) => acc + invoice.receita_liquida,
-          0,
+          (acc, invoice) => acc.plus(new Decimal(invoice.receita_liquida)),
+          new Decimal(0),
         )
 
-        newObj[user] = sum.toFixed(2)
+        newObj[user] = sum.toNumber().toFixed(2)
       } else {
         newObj[user] = '0.00'
       }

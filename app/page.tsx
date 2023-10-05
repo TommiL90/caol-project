@@ -3,8 +3,7 @@ import { FinancialProvider } from '@/contexts/financial-context'
 import ConsultantsComponent from '@/components/consultants-component'
 import { ClientsProvider } from '@/contexts/client-context'
 import ClientsComponent from '@/components/clients-component'
-import Image from 'next/image'
-import logo from '@/public/logo.gif'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 export default async function Home() {
   return (
@@ -12,7 +11,22 @@ export default async function Home() {
       <div className="flex-1 space-y-4 p-8 pt-6">
         <div className="flex items-center justify-between space-y-2">
           <h2 className="text-3xl font-bold tracking-tight">Financeiro</h2>
-          <Image src={logo} alt="Logo" width={100} height={100} />
+          <a
+            href="https://tomidev.vercel.app/"
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center justify-center text-3xl font-bold"
+          >
+            <Avatar className="mr-2 h-12 w-12">
+              <AvatarImage
+                src={`https://github.com/tommil90.png`}
+                className="rounded-full"
+              />
+              <AvatarFallback>TB</AvatarFallback>
+            </Avatar>
+            <span>Tomi</span>
+            <span className="text-primary">Dev</span>
+          </a>
         </div>
         <Tabs defaultValue="consultants">
           <TabsList className="grid w-full grid-cols-2">

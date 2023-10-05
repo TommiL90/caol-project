@@ -1,4 +1,5 @@
 'use server'
+import Decimal from 'decimal.js-light'
 import { InvoicesByUserAndMonth } from './order-os-by-user-and-month'
 
 export interface UserSummaries {
@@ -13,11 +14,11 @@ export const calculateUserSummaries = async (
 
   Object.entries(invoicesByUserAndMonth).forEach(([userName, userData]) => {
     const totalNetValueSum = Object.values(userData).reduce(
-      (acc, monthData) => acc + (monthData.totalNetValue || 0),
-      0,
+      (acc, monthData) => acc.plus(new Decimal(monthData.totalNetValue || 0)),
+      new Decimal(0),
     )
 
-    userSummaries.push({ name: userName, value: totalNetValueSum })
+    userSummaries.push({ name: userName, value: totalNetValueSum.toNumber() })
   })
 
   return userSummaries

@@ -29,8 +29,9 @@ export const transformInvoicesToMonthlyFormat = async (
     })
 
     clientes.forEach((cliente) => {
-      newObj[cliente.co_cliente.toString()] =
-        cliente.receita_liquida_do_mes.toFixed(2)
+      newObj[cliente.co_cliente.toString()] = parseFloat(
+        cliente.receita_liquida_do_mes.toFixed(2),
+      )
     })
 
     return newObj
