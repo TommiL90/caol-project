@@ -18,7 +18,7 @@ const SelectUserFooterClients = () => {
         />
       </div>
       <Button onClick={getReport} className="h-full">
-        {loading ? 'Carregando data' : ' Gerar Relatário'}
+        {loading ? 'Carregando data' : ' Gerar Relatório'}
       </Button>
     </div>
   )
