@@ -45,6 +45,7 @@ interface IFinancialContext {
   date: DateRange | undefined
   setDate: Dispatch<SetStateAction<DateRange | undefined>>
   getReport: () => Promise<void>
+  loading: boolean
 }
 
 interface IChildrenProps {
@@ -70,20 +71,28 @@ export const FinancialProvider = ({ children }: IChildrenProps) => {
   const [fixedCostfromConsultantData, setfixedCostfromConsultantData] =
     useState<FixedCostFromConsultans[]>([])
   const [userArr, setUserArr] = useState<string[]>([])
+  const [loading, setLoading] = useState(false)
 
   const getReport = async () => {
     if (date?.from && date?.to && movedUsers.length > 0) {
       const starDate = new Date(date.from)
       const endDate = new Date(date.to)
 
-      const os = await retrieveOsByConsultants(movedUsers)
+      let invoicesByUserAndMonth: InvoicesByUserAndMonth = {}
 
-      const invoices = await retrieveInvoices(os, starDate, endDate)
+      try {
+        setLoading(true)
 
-      const invoicesByUserAndMonth = await orderInvoicesByUserAndMonth(
-        os,
-        invoices,
-      )
+        const os = await retrieveOsByConsultants(movedUsers)
+
+        const invoices = await retrieveInvoices(os, starDate, endDate)
+
+        invoicesByUserAndMonth = await orderInvoicesByUserAndMonth(os, invoices)
+      } catch (error) {
+        setLoading(false)
+      } finally {
+        setLoading(false)
+      }
 
       setReportTable(invoicesByUserAndMonth)
 
@@ -136,6 +145,7 @@ export const FinancialProvider = ({ children }: IChildrenProps) => {
         handleMove,
         date,
         setDate,
+        loading,
       }}
     >
       {children}

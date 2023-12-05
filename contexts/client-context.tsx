@@ -8,6 +8,7 @@ import {
   reorderInvoicesfromMonthsAndClients,
 } from '@/functions/reorder-invoices-by-month-clients'
 import { Client } from '@/functions/retrieve-clients'
+import { RetrieveInvoice } from '@/functions/retrieve-invoices'
 import { retrieveInvoicesFromClients } from '@/functions/retrieve-invoices-froms-clients'
 import { transformInvoicesToMonthlyFormat } from '@/functions/transform-invoices-to-monthly-format'
 import { transformToClientSummaries } from '@/functions/transform-to-client-summaries'
@@ -34,6 +35,7 @@ interface IClientsContext {
   arrOrderesForMonthAndUser: MonthWithClients[]
   reportGraphic: Record<string, any>[]
   reportPizza: UserSummaries[]
+  loading: boolean
 }
 
 export const ClientsContext = createContext({} as IClientsContext)
@@ -46,6 +48,7 @@ export const ClientsProvider = ({ children }: IChildrenProps) => {
   >([])
   const [reportGraphic, setReportGraphic] = useState<Record<string, any>[]>([])
   const [reportPizza, setReportPizza] = useState<UserSummaries[]>([])
+  const [loading, setLoading] = useState(false)
 
   const [date, setDate] = useState<DateRange | undefined>({
     from: new Date(2007, 0, 1),
@@ -61,11 +64,22 @@ export const ClientsProvider = ({ children }: IChildrenProps) => {
 
   const getReport = async () => {
     if (date?.from && date?.to && movedUsers.length > 0) {
-      const invoices = await retrieveInvoicesFromClients(
-        movedUsers,
-        date.from,
-        date.to,
-      )
+      let invoices: RetrieveInvoice[] = []
+
+      try {
+        setLoading(true)
+        const data = await retrieveInvoicesFromClients(
+          movedUsers,
+          date.from,
+          date.to,
+        )
+        invoices = data
+      } catch (error) {
+        console.log(error)
+        setLoading(false)
+      } finally {
+        setLoading(false)
+      }
 
       const orderInvoicesfromMonthsAndClients =
         await reorderInvoicesfromMonthsAndClients(invoices)
@@ -109,6 +123,7 @@ export const ClientsProvider = ({ children }: IChildrenProps) => {
         arrOrderesForMonthAndUser,
         reportGraphic,
         reportPizza,
+        loading,
       }}
     >
       {children}
